@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý thư viện</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; min-height: 100vh; }
+    .container { margin-top: 50px; }
+    .card-header { background-color: #007bff; color: white; }
+    table th, table td { vertical-align: middle; }
+    .btn { margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <!-- Form thêm / sửa sách -->
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header text-center"><span id="formTitle">Thêm sách mới</span></div>
+          <div class="card-body">
+            <form id="bookForm">
+              <input type="hidden" id="bookId">
+              <div class="mb-3"><input type="text" id="title" class="form-control" placeholder="Tên sách" required></div>
+              <div class="mb-3"><input type="text" id="author" class="form-control" placeholder="Tác giả" required></div>
+              <div class="mb-3"><input type="text" id="category" class="form-control" placeholder="Thể loại" required></div>
+              <div class="mb-3"><input type="number" id="quantity" class="form-control" placeholder="Số lượng" required min="1"></div>
+              <button type="submit" class="btn btn-primary w-100" id="submitBtn">Thêm sách</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danh sách sách -->
+      <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-header text-center">Danh sách sách</div>
+          <div class="card-body">
+            <table class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th><th>Tên sách</th><th>Tác giả</th><th>Thể loại</th><th>Số lượng</th><th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="bookTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const listUrl = "http://localhost:3000/books/list"; // GET danh sách
+    const crudUrl = "http://localhost:3000/books";      // POST/PUT/DELETE
+    const addUrl = "http://localhost:3000/books/add";   // POST thêm mới
+
+    // Load danh sách sách
+    async function loadBooks() {
+      const res = await fetch(listUrl);
+      const books = await res.json();
+      const tbody = document.getElementById("bookTableBody");
+      tbody.innerHTML = "";
+      books.forEach(book => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${book.book_id}</td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.category}</td>
+          <td>${book.quantity}</td>
+          <td>
+            <button class="btn btn-sm btn-warning" onclick="editBook(${book.book_id})">Sửa</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.book_id})">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Thêm / Cập nhật sách
+    document.getElementById("bookForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const id = document.getElementById("bookId").value;
+      const book = {
+        title: document.getElementById("title").value,
+        author: document.getElementById("author").value,
+        category: document.getElementById("category").value,
+        quantity: parseInt(document.getElementById("quantity").value)
+      };
+
+      try {
+        if (id) {
+  // Cập nhật
+  await fetch(`${crudUrl}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(book)
+  });
+  alert("Cập nhật sách thành công!");
+} else {
+  // Thêm mới
+  await fetch(addUrl, {     // <-- dùng addUrl thay vì crudUrl
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(book)
+  });
+  alert("Thêm sách thành công!");
+}
+
+
+        document.getElementById("bookForm").reset();
+        document.getElementById("formTitle").textContent = "Thêm sách mới";
+        document.getElementById("submitBtn").textContent = "Thêm sách";
+        document.getElementById("bookId").value = "";
+        loadBooks();
+      } catch (err) {
+        alert("Lỗi server: " + err.message);
+      }
+    });
+
+    // Xóa sách
+    async function deleteBook(id) {
+      if (confirm("Bạn có chắc muốn xóa sách này?")) {
+        await fetch(`${crudUrl}/${id}`, { method: "DELETE" });
+        alert("Xóa sách thành công!");
+        loadBooks();
+      }
+    }
+
+    // Sửa sách
+    async function editBook(id) {
+      const res = await fetch(listUrl);
+      const books = await res.json();
+      const book = books.find(b => b.book_id === id);
+      document.getElementById("bookId").value = book.book_id;
+      document.getElementById("title").value = book.title;
+      document.getElementById("author").value = book.author;
+      document.getElementById("category").value = book.category;
+      document.getElementById("quantity").value = book.quantity;
+      document.getElementById("formTitle").textContent = "Cập nhật sách";
+      document.getElementById("submitBtn").textContent = "Cập nhật";
+    }
+
+    // Load lúc đầu
+    loadBooks();
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <h3 class="mb-4 text-dark fw-bold d-flex align-items-center justify-content-between">
+    <span><span class="me-2">📖</span> Thư viện & Mượn sách</span>
+    <span class="badge bg-primary fs-6 shadow-sm">{{ allBooks.length }} cuốn trong kho</span>
+  </h3>
+
+  <div class="row mb-4">
+    <div class="col-md-6 col-lg-5">
+      <div class="input-group shadow-sm border rounded overflow-hidden">
+        <span class="input-group-text bg-white border-0 text-muted">🔍</span>
+        <input 
+          type="text" 
+          class="form-control border-0 bg-white shadow-none" 
+          placeholder="Tìm tên sách hoặc tác giả..." 
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()">
+        <button 
+          *ngIf="searchTerm"
+          class="btn btn-link text-decoration-none text-muted border-0" 
+          type="button" 
+          (click)="searchTerm = ''; onSearchChange()">
+          Xóa
+        </button>
+      </div>
+      <div class="mt-2" style="height: 20px;">
+        <small class="text-muted" *ngIf="searchTerm">
+          Tìm thấy <span class="text-primary fw-bold">{{ filteredBooks.length }}</span> kết quả phù hợp.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm overflow-hidden mb-5">
+    <div class="card-header bg-primary text-white py-3 border-0">
+      <h5 class="mb-0 fw-bold"><i class="bi bi-book-half me-2"></i> KHO SÁCH THƯ VIỆN</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 bg-white">
+        <thead class="table-light text-secondary">
+          <tr>
+            <th class="ps-4 py-3">Tên sách</th>
+            <th class="py-3">Tác giả</th>
+            <th class="py-3 text-center">Năm</th>
+            <th class="py-3 text-center" width="180">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of pagedAllBooks">
+            <td class="ps-4 fw-bold text-dark">{{ book.title }}</td>
+            <td class="text-secondary">{{ book.author }}</td>
+            <td class="text-center text-muted">{{ book.year }}</td>
+            <td class="text-center">
+              <button *ngIf="book.available === 1" 
+                      (click)="handleBorrow(book.id)" 
+                      class="btn btn-sm btn-primary px-3 shadow-sm fw-bold">
+                Mượn ngay
+              </button>
+              <span *ngIf="book.available === 0" 
+                    class="badge rounded-pill bg-light text-secondary border px-3">
+                <i class="bi bi-lock-fill me-1"></i> Đã mượn
+              </span>
+            </td>
+          </tr>
+          
+          <tr *ngIf="filteredBooks.length === 0">
+            <td colspan="4" class="text-center py-5 text-muted">
+              <div class="fs-2">📂</div>
+              Không tìm thấy kết quả nào phù hợp.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <nav class="my-3" *ngIf="totalPagesAll > 1">
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        <li class="page-item mx-1" [class.disabled]="pageAllBooks === 1">
+          <button class="page-link border-0 shadow-sm rounded text-primary" (click)="pageAllBooks = pageAllBooks - 1">Trước</button>
+        </li>
+        <li class="page-item mx-1" *ngFor="let p of getPagesArray(totalPagesAll)" [class.active]="pageAllBooks === p">
+          <button class="page-link border-0 shadow-sm rounded" 
+                  [ngClass]="pageAllBooks === p ? 'bg-primary text-white' : 'bg-white text-dark'"
+                  (click)="pageAllBooks = p">{{p}}</button>
+        </li>
+        <li class="page-item mx-1" [class.disabled]="pageAllBooks === totalPagesAll">
+          <button class="page-link border-0 shadow-sm rounded text-primary" (click)="pageAllBooks = pageAllBooks + 1">Sau</button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <hr class="my-5 opacity-25">
+
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-success text-white py-3 border-0">
+      <h5 class="mb-0 fw-bold"><i class="bi bi-journal-check me-2"></i> SÁCH BẠN ĐANG MƯỢN</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 bg-white">
+        <thead class="table-light text-secondary">
+          <tr>
+            <th class="ps-4 py-3">Tên sách</th>
+            <th class="py-3">Ngày mượn</th>
+            <th class="py-3">Ngày trả</th>
+            <th class="py-3 text-center" width="180">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pagedMyBorrows">
+            <td class="ps-4 fw-bold text-success">{{ item.title }}</td>
+            <td class="text-muted small">
+              <i class="bi bi-calendar-event me-2"></i>{{ item.borrow_date | date:'dd/MM/yyyy' }}
+            </td>
+            <td>
+              <span *ngIf="item.return_date" class="text-success fw-bold">{{ item.return_date | date:'dd/MM/yyyy' }}</span>
+              <span *ngIf="!item.return_date" class="text-danger small italic">Đang giữ...</span>
+            </td>
+            <td class="text-center">
+              <button *ngIf="!item.return_date" 
+                      class="btn btn-sm btn-danger px-3 shadow-sm fw-bold" 
+                      (click)="handleReturn(item.borrow_id)">
+                Trả sách
+              </button>
+              <span *ngIf="item.return_date" 
+                    class="badge bg-light text-secondary border px-3">
+                Đã hoàn thành
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="borrowedBooks.length === 0">
+            <td colspan="4" class="text-center py-5 text-muted">Bạn hiện không mượn cuốn sách nào.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="my-3" *ngIf="totalPagesMy > 1">
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        <li class="page-item mx-1" [class.disabled]="pageMyBorrows === 1">
+          <button class="page-link border-0 shadow-sm rounded text-success" (click)="pageMyBorrows = pageMyBorrows - 1">Trước</button>
+        </li>
+        <li class="page-item mx-1" *ngFor="let p of getPagesArray(totalPagesMy)" [class.active]="pageMyBorrows === p">
+          <button class="page-link border-0 shadow-sm rounded" 
+                  [ngClass]="pageMyBorrows === p ? 'bg-success text-white' : 'bg-white text-dark'"
+                  (click)="pageMyBorrows = p">{{p}}</button>
+        </li>
+        <li class="page-item mx-1" [class.disabled]="pageMyBorrows === totalPagesMy">
+          <button class="page-link border-0 shadow-sm rounded text-success" (click)="pageMyBorrows = pageMyBorrows + 1">Sau</button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

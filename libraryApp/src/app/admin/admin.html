@@ -1,0 +1,16 @@
+<div class="d-flex vh-100">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main content -->
+  <div class="flex-grow-1 d-flex flex-column">
+    <app-header></app-header>
+
+    <main class="flex-grow-1 p-4 bg-light">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+  
+</div>
+<app-footer></app-footer>
+

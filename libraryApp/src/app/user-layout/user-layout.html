@@ -1,0 +1,16 @@
+<div class="container py-4">
+    <app-sidebar-user></app-sidebar-user>
+  <div class="row">
+    <!-- Cột trái -->
+    <div class="col-md-4">
+      <app-user-profile></app-user-profile>
+    </div>
+
+    <!-- Cột phải -->
+    <div class="col-md-8">
+      <app-user-books></app-user-books>
+      <app-user-borrow-list class="mt-4"></app-user-borrow-list>
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+</div>

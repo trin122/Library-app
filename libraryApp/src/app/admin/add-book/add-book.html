@@ -1,0 +1,125 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <h3 class="mb-4 text-dark fw-bold d-flex align-items-center">
+    <span class="me-2">📚</span> Quản lý hệ thống sách
+  </h3>
+
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body bg-white rounded">
+      <h5 class="card-title text-primary mb-3 fw-bold">➕ Thêm sách mới</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-muted">Tên đầu sách</label>
+          <input type="text" class="form-control shadow-none border-light-subtle" 
+                 placeholder="Nhập tên sách..." [(ngModel)]="newBook.title">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">Tác giả</label>
+          <input type="text" class="form-control shadow-none border-light-subtle" 
+                 placeholder="Tên tác giả..." [(ngModel)]="newBook.author">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-bold text-muted">Năm XB</label>
+          <input type="number" class="form-control shadow-none border-light-subtle" 
+                 placeholder="2024" [(ngModel)]="newBook.year">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-primary w-100 fw-bold shadow-sm py-2" (click)="addBook()">
+            LƯU VÀO KHO
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-6 col-lg-5">
+      <div class="input-group shadow-sm border rounded overflow-hidden">
+        <span class="input-group-text bg-white border-0 text-muted">🔍</span>
+        <input 
+          type="text" 
+          class="form-control border-0 bg-white shadow-none" 
+          placeholder="Tìm tên sách hoặc tác giả..." 
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()">
+        <button 
+          *ngIf="searchTerm"
+          class="btn btn-link text-decoration-none text-muted border-0" 
+          type="button" 
+          (click)="searchTerm = ''; onSearchChange()">
+          Xóa
+        </button>
+      </div>
+      <div class="mt-2" style="height: 20px;">
+        <small class="text-muted" *ngIf="searchTerm">
+          Tìm thấy <span class="text-primary fw-bold">{{ filteredBooks.length }}</span> kết quả phù hợp.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 bg-white">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th class="ps-4 py-3" width="80">ID</th>
+            <th class="py-3">Tên sách</th>
+            <th class="py-3">Tác giả</th>
+            <th class="py-3" width="120">Năm XB</th>
+            <th class="py-3 text-center" width="200">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of pagedBooks">
+            <td class="ps-4 text-muted fw-semibold">#{{ book.id }}</td>
+            <td>
+              <span *ngIf="editBook?.id !== book.id" class="fw-bold text-dark">{{ book.title }}</span>
+              <input *ngIf="editBook?.id === book.id" class="form-control form-control-sm border-primary" [(ngModel)]="editBook.title">
+            </td>
+            <td>
+              <span *ngIf="editBook?.id !== book.id" class="text-secondary">{{ book.author }}</span>
+              <input *ngIf="editBook?.id === book.id" class="form-control form-control-sm border-primary" [(ngModel)]="editBook.author">
+            </td>
+            <td>
+              <span *ngIf="editBook?.id !== book.id" class="badge bg-light text-dark border">{{ book.year }}</span>
+              <input *ngIf="editBook?.id === book.id" type="number" class="form-control form-control-sm border-primary" [(ngModel)]="editBook.year">
+            </td>
+            <td class="text-center">
+              <div *ngIf="editBook?.id !== book.id">
+                <button class="btn btn-sm btn-outline-primary border-0 me-1" (click)="startEdit(book)">✏️ Sửa</button>
+                <button class="btn btn-sm btn-outline-danger border-0" (click)="deleteBook(book.id)">🗑️ Xóa</button>
+              </div>
+              <div *ngIf="editBook?.id === book.id">
+                <button class="btn btn-sm btn-success me-1 px-3 shadow-sm" (click)="saveEdit()">Lưu</button>
+                <button class="btn btn-sm btn-light border px-3 shadow-sm" (click)="cancelEdit()">Hủy</button>
+              </div>
+            </td>
+          </tr>
+          
+          <tr *ngIf="filteredBooks.length === 0">
+            <td colspan="5" class="text-center py-5 text-muted italic">
+              <div class="fs-2">📂</div>
+              Không tìm thấy kết quả nào phù hợp.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <nav class="mt-4" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link border-0 shadow-sm mx-1 rounded text-primary" (click)="setPage(currentPage - 1)">&laquo; Trước</button>
+      </li>
+      <li class="page-item mx-1" *ngFor="let p of pagesArray" [class.active]="currentPage === p">
+        <button class="page-link border-0 shadow-sm rounded" 
+                [ngClass]="currentPage === p ? 'bg-primary text-white' : 'bg-white text-dark'"
+                (click)="setPage(p)">{{ p }}</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link border-0 shadow-sm mx-1 rounded text-primary" (click)="setPage(currentPage + 1)">Sau &raquo;</button>
+      </li>
+    </ul>
+  </nav>
+</div>

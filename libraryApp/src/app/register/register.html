@@ -1,0 +1,68 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-sm border-0" style="max-width: 450px; width: 100%;">
+    <div class="card-body p-4 bg-white rounded">
+      
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">Đăng ký thành viên</h2>
+        
+      </div>
+
+      <form (ngSubmit)="onRegister()">
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Tên đăng nhập</label>
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-white border-0 text-muted">👤</span>
+            <input type="text" class="form-control border-0 shadow-none" 
+                   [(ngModel)]="user.username" name="username" placeholder="Nhập tên tài khoản" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Email</label>
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-white border-0 text-muted">✉️</span>
+            <input type="email" class="form-control border-0 shadow-none" 
+                   [(ngModel)]="user.email" name="email" placeholder="email@vi-du.com" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Số điện thoại</label>
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-white border-0 text-muted">📞</span>
+            <input type="text" class="form-control border-0 shadow-none" 
+                   [(ngModel)]="user.phone" name="phone" placeholder="Số điện thoại của bạn">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Mật khẩu</label>
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-white border-0 text-muted">🔒</span>
+            <input type="password" class="form-control border-0 shadow-none" 
+                   [(ngModel)]="user.password" name="password" placeholder="Nhập mật khẩu" required>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-muted">Xác nhận mật khẩu</label>
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-white border-0 text-muted">✔️</span>
+            <input type="password" class="form-control border-0 shadow-none" 
+                   [(ngModel)]="user.confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm mb-3">
+          ĐĂNG KÝ NGAY
+        </button>
+
+        <div class="text-center">
+          <span class="text-muted small">Đã có tài khoản? </span>
+          <a routerLink="/" class="text-primary small fw-bold text-decoration-none">Đăng nhập</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
