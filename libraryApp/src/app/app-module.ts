@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Register } from './register/register';
 import { Members } from './members/members';
+import { Borrows } from './borrows/borrows';
 
 
 @NgModule({
@@ -38,6 +39,7 @@ import { Members } from './members/members';
     UserLayout,
     Register,
     Members,
+    Borrows,
     
     
   ],

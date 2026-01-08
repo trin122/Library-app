@@ -97,3 +97,24 @@ exports.getUserBorrows = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy danh sách mượn của user" });
   }
 };
+exports.getAllBorrows = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        b.id AS borrow_id,
+        u.username,
+        u.email,
+        bk.title AS book_title,
+        b.borrow_date,
+        b.return_date
+      FROM borrows b
+      JOIN users u ON b.user_id = u.id
+      JOIN books bk ON b.book_id = bk.id
+      ORDER BY b.borrow_date DESC
+    `;
+    const [rows] = await pool.query(query);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi: " + err.message });
+  }
+};

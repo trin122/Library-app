@@ -9,6 +9,7 @@ import { UserProfile } from './user-profile/user-profile';
 import { register } from 'module';
 import { Register } from './register/register';
 import { Members } from './members/members';
+import { Borrows } from './borrows/borrows';
 
 const routes: Routes = [
   { path: '', component: Login },
@@ -20,7 +21,8 @@ const routes: Routes = [
     children: [
       { path: '', component: Dashboard },   // /admin
       { path: 'books', component: AddBook },
-      { path: 'members', component: Members } 
+      { path: 'members', component: Members },
+      { path: 'borrows', component: Borrows }
     ]
   },
 
